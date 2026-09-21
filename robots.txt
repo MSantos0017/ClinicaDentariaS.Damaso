@@ -1,0 +1,8 @@
+# Clínica Dentária S. Dâmaso
+# SUBSTITUIR o domínio na linha Sitemap pelo domínio real antes de publicar.
+
+User-agent: *
+Allow: /
+Disallow: /404.html
+
+Sitemap: https://www.clinicadamaso.pt/sitemap.xml

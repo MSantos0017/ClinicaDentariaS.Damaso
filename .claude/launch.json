@@ -1,0 +1,13 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "clinica",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "C:/Users/migue/AppData/Local/Temp/claude/C--Users-migue-OneDrive-GITHUB-ClinicaDentariaS-Damaso/b3888c45-da91-46e2-b4be-2f04aaff68b7/scratchpad/dev-server.mjs"
+      ],
+      "port": 5173
+    }
+  ]
+}
