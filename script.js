@@ -194,8 +194,11 @@
         modalNome.textContent = nome;
         modalFuncao.textContent = cartao.dataset.funcao;
         modalImg.alt = 'Retrato de ' + nome + '.';
+        var tamanhos = '(min-width: 48em) 15rem, 100vw';
         modalAvif.srcset = 'assets/img/equipa/' + slug + '-400.avif 400w, assets/img/equipa/' + slug + '-600.avif 600w';
         modalWebp.srcset = 'assets/img/equipa/' + slug + '-400.webp 400w, assets/img/equipa/' + slug + '-600.webp 600w';
+        modalAvif.sizes = tamanhos;
+        modalWebp.sizes = tamanhos;
         modalImg.src = 'assets/img/equipa/' + slug + '-600.webp';
 
         modalCreditos.replaceChildren();
@@ -222,7 +225,7 @@
     botaoMapa.addEventListener('click', function () {
       var iframe = document.createElement('iframe');
       iframe.src = mapa.dataset.src;
-      iframe.title = 'Mapa com a localização da Clínica Dentária S. Dâmaso, na Alameda S. Dâmaso 23, Guimarães';
+      iframe.title = mapa.dataset.titulo || 'Google Maps';
       iframe.loading = 'lazy';
       iframe.referrerPolicy = 'no-referrer-when-downgrade';
       iframe.allowFullscreen = true;
@@ -246,7 +249,7 @@
 
     document.addEventListener('click', function (evento) {
       if (botaoTelefone.getAttribute('aria-expanded') !== 'true') return;
-      if (!evento.target.closest('.accao-flutuante')) alternaTelefone(false);
+      if (!evento.target.closest('.accao-telefone')) alternaTelefone(false);
     });
 
     document.addEventListener('keydown', function (evento) {
@@ -254,6 +257,25 @@
         alternaTelefone(false);
         botaoTelefone.focus();
       }
+    });
+  }
+
+  /* ---------- Voltar ao topo ----------
+     Usa a mesma sentinela do cabeçalho: o botão só aparece depois de a
+     página ter descido o suficiente para valer a pena. */
+  var botaoTopo = document.getElementById('voltar-topo');
+  if (botaoTopo && 'IntersectionObserver' in window) {
+    var marcaTopo = document.createElement('div');
+    marcaTopo.setAttribute('aria-hidden', 'true');
+    marcaTopo.style.cssText = 'position:absolute;top:0;left:0;width:1px;height:90vh;pointer-events:none';
+    document.body.prepend(marcaTopo);
+
+    new IntersectionObserver(function (entradas) {
+      botaoTopo.hidden = entradas[0].isIntersecting;
+    }).observe(marcaTopo);
+
+    botaoTopo.addEventListener('click', function () {
+      window.scrollTo({ top: 0, behavior: movimentoReduzido ? 'auto' : 'smooth' });
     });
   }
 

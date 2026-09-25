@@ -39,7 +39,12 @@ http
       const cabecalhos = {
         'Content-Type': tipo,
         // imita a cache do .htaccess para que a auditoria seja realista
-        'Cache-Control': ext === '.html' ? 'public, max-age=0, must-revalidate' : 'public, max-age=31536000, immutable',
+        // CSS, JS e HTML sem cache: em desenvolvimento, uma cache longa faz
+        // o navegador servir versões antigas e dá diagnósticos enganadores.
+        // As imagens mantêm cache longa, como em produção.
+        'Cache-Control': /\.(css|js|html)$/.test(ext)
+          ? 'no-store'
+          : 'public, max-age=31536000, immutable',
       };
 
       // comprime texto, tal como o mod_deflate fará em produção

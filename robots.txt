@@ -1,8 +1,10 @@
 # Clínica Dentária S. Dâmaso
-# SUBSTITUIR o domínio na linha Sitemap pelo domínio real antes de publicar.
+# Quando o domínio estiver definido, acrescentar a linha:
+#   Sitemap: https://O-SEU-DOMINIO/sitemap.xml
 
 User-agent: *
 Allow: /
 Disallow: /404.html
-
-Sitemap: https://www.clinicadamaso.pt/sitemap.xml
+Disallow: /en/404.html
+Disallow: /_ferramentas/
+Disallow: /_originais/

@@ -84,6 +84,11 @@ html {
   scroll-behavior: smooth;
   /* compensa o cabeçalho fixo ao saltar para uma âncora */
   scroll-padding-top: 5.5rem;
+  /* O painel de navegação fica estacionado à direita do ecrã quando fechado.
+     `clip` impede que isso alargue a área de deslocamento (o que dava
+     transbordo horizontal no telemóvel); ao contrário de `hidden`, não cria
+     um contentor de deslocamento e não quebra o cabeçalho `sticky`. */
+  overflow-x: clip;
 }
 
 body {
@@ -682,83 +687,113 @@ ul { list-style: none; padding: 0; }
 }
 
 /* EQUIPA */
+.equipa__grupo + .equipa__grupo { margin-top: clamp(2.8rem, 1.8rem + 3vw, 4.5rem); }
+
+.equipa__titulo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.6rem;
+  font-family: 'Manrope', sans-serif;
+  font-size: var(--t-xs);
+  font-weight: 700;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--marinho);
+}
+.equipa__titulo::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--linha);
+}
+.equipa__titulo small {
+  order: 3;
+  font-size: var(--t-xs);
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: none;
+  color: var(--tinta-suave);
+  white-space: nowrap;
+}
+
 .grelha-equipa {
   display: grid;
-  gap: .8rem;
+  gap: 1rem;
   grid-template-columns: repeat(2, 1fr);
 }
 
+/* Cartão sem moldura: o retrato assenta sobre um painel da cor da marca
+   e o nome fica sobre o fundo da secção, como numa ficha editorial. */
 .pessoa {
   display: flex;
   flex-direction: column;
+  gap: .85rem;
   width: 100%;
-  height: 100%;
   padding: 0;
-  overflow: hidden;
+  border: 0;
+  background: none;
   text-align: left;
-  background: var(--branco);
-  border: 1px solid var(--linha);
-  border-radius: var(--raio);
-  transition: border-color var(--transicao), transform var(--transicao),
-              box-shadow var(--transicao);
 }
-.pessoa:hover {
-  transform: translateY(-4px);
-  border-color: var(--bronze);
-  box-shadow: var(--sombra-media);
-}
-.pessoa__foto {
+
+.pessoa__retrato {
+  position: relative;
   display: block;
   overflow: hidden;
-  background: var(--osso);
+  border-radius: var(--raio);
+  background: linear-gradient(172deg, #EFE7DA 0%, #E0D4C0 100%);
+  box-shadow: inset 0 0 0 1px rgba(10, 49, 77, .05);
+  transition: box-shadow var(--transicao);
 }
-.pessoa__foto img {
+.pessoa__retrato img {
   width: 100%;
   aspect-ratio: 4 / 5;
   object-fit: cover;
   object-position: top;
   transition: scale 600ms cubic-bezier(.22, .61, .36, 1);
 }
-.pessoa:hover .pessoa__foto img { scale: 1.05; }
+.pessoa:hover .pessoa__retrato { box-shadow: inset 0 0 0 1px rgba(181, 123, 71, .5); }
+.pessoa:hover .pessoa__retrato img { scale: 1.035; }
 
-.pessoa__info {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  padding: 1.1rem 1.1rem 1.3rem;
+.pessoa__mais {
+  position: absolute;
+  right: .6rem;
+  bottom: .6rem;
+  display: grid;
+  place-items: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 50%;
+  background: var(--marfim);
+  color: var(--marinho);
+  box-shadow: 0 2px 10px -2px rgba(10, 49, 77, .3);
+  transition: background-color var(--transicao), color var(--transicao), rotate var(--transicao);
 }
+.pessoa:hover .pessoa__mais {
+  background: var(--marinho);
+  color: var(--marfim);
+  rotate: 90deg;
+}
+
+.pessoa__info { display: block; }
 .pessoa__info strong {
   display: block;
   font-size: .98rem;
   font-weight: 700;
   line-height: 1.3;
   color: var(--marinho);
+  transition: color var(--transicao);
 }
+.pessoa:hover .pessoa__info strong { color: var(--bronze-texto); }
 .pessoa__info em {
   display: block;
-  margin-top: .15rem;
+  margin-top: .2rem;
   font-style: normal;
   font-size: var(--t-xs);
-  font-weight: 700;
-  letter-spacing: .1em;
+  font-weight: 600;
+  letter-spacing: .06em;
   text-transform: uppercase;
-  color: var(--bronze-texto);
-}
-.pessoa__ver {
-  display: inline-flex;
-  align-self: start;
-  align-items: center;
-  gap: .4rem;
-  margin-top: auto;
-  padding-top: .9rem;
-  font-size: var(--t-xs);
-  font-weight: 700;
   color: var(--tinta-suave);
-  transition: color var(--transicao), gap var(--transicao);
-}
-.pessoa:hover .pessoa__ver {
-  gap: .65rem;
-  color: var(--marinho);
 }
 
 /* CONTACTOS */
@@ -986,6 +1021,7 @@ a.cartao-contacto:hover {
   overflow-y: auto;
   border-radius: inherit;
 }
+.modal__foto { background: linear-gradient(172deg, #EFE7DA 0%, #E0D4C0 100%); }
 .modal__foto img {
   width: 100%;
   aspect-ratio: 4 / 5;
@@ -1018,18 +1054,359 @@ a.cartao-contacto:hover {
   background: var(--bronze);
 }
 
-/* Botão flutuante de contacto telefónico */
-.accao-flutuante {
+/* ---------- Seletor de idioma ---------- */
+.cabecalho__accoes {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+}
+
+.idioma {
+  display: grid;
+  place-items: center;
+  min-width: 2.9rem;
+  height: 2.9rem;
+  padding-inline: .6rem;
+  border: 1px solid var(--linha);
+  border-radius: 999px;
+  background: var(--branco);
+  color: var(--marinho);
+  font-size: var(--t-xs);
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-decoration: none;
+  transition: background-color var(--transicao), color var(--transicao), border-color var(--transicao);
+}
+.idioma:hover {
+  background: var(--marinho);
+  border-color: var(--marinho);
+  color: var(--marfim);
+}
+
+/* ---------- Auxiliares de layout ---------- */
+.envolvente--estreita { max-width: 48rem; }
+.centrar-texto { text-align: center; }
+.centrar-texto .texto-grande {
+  margin: 1.2rem auto 0;
+  max-width: 42rem;
+  color: var(--tinta-suave);
+  font-size: var(--t-lead);
+}
+
+/* ---------- Cartão de especialidade com página própria ---------- */
+.especialidade:has(.especialidade__ligacao) { padding: 0; }
+.especialidade__ligacao {
+  display: block;
+  height: 100%;
+  padding: 1.5rem 1.4rem;
+  text-decoration: none;
+  color: inherit;
+}
+.especialidade__mais {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  margin-top: .9rem;
+  color: var(--bronze-texto);
+  font-size: var(--t-xs);
+  font-weight: 700;
+  transition: gap var(--transicao);
+}
+.especialidade:hover .especialidade__mais { gap: .7rem; }
+
+/* ---------- Páginas de tratamento ---------- */
+.hero--tratamento { padding-block: clamp(2rem, 1rem + 4vw, 4rem) var(--espaco-seccao); }
+
+.grelha-metodos {
+  display: grid;
+  gap: 1.1rem;
+}
+.metodo {
+  padding: 1.8rem 1.6rem;
+  background: var(--branco);
+  border: 1px solid var(--linha);
+  border-radius: var(--raio);
+  transition: border-color var(--transicao), transform var(--transicao), box-shadow var(--transicao);
+}
+.metodo:hover {
+  transform: translateY(-4px);
+  border-color: var(--bronze);
+  box-shadow: var(--sombra-media);
+}
+.metodo { border-top: 2px solid var(--bronze); }
+
+.metodo__topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.2rem;
+}
+.metodo__icone {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 12px;
+  background: var(--osso);
+  color: var(--bronze-texto);
+}
+.metodo__indice {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.6rem;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--linha);
+  font-variant-numeric: tabular-nums;
+}
+.metodo:hover .metodo__indice { color: var(--bronze-claro); }
+.metodo h3 { margin-bottom: .5rem; font-size: 1.15rem; }
+.metodo p { color: var(--tinta-suave); font-size: var(--t-sm); line-height: 1.65; }
+.metodo__nota {
+  margin-top: 1.1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--linha);
+  color: var(--marinho);
+  font-weight: 600;
+}
+.metodo__nota strong {
+  display: block;
+  margin-bottom: .1rem;
+  color: var(--bronze-texto);
+  font-size: var(--t-xs);
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+/* ---------- Linha do tempo do processo ---------- */
+.linha-tempo {
+  display: grid;
+  gap: 2.2rem;
+  padding: 0;
+  list-style: none;
+}
+.linha-tempo li {
+  position: relative;
+  padding-left: 3.8rem;
+}
+.linha-tempo__marca {
+  position: absolute;
+  top: -.2rem;
+  left: 0;
+  display: grid;
+  place-items: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border: 1px solid var(--linha-escura);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .06);
+  color: var(--bronze-claro);
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: .92rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+/* fio que liga os passos */
+.linha-tempo li:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  top: 2.7rem;
+  bottom: -2.2rem;
+  left: 1.3rem;
+  width: 1px;
+  background: var(--linha-escura);
+}
+.linha-tempo h3 { margin-bottom: .3rem; color: var(--branco); font-size: 1.08rem; }
+.linha-tempo p { color: rgba(255, 255, 255, .72); font-size: var(--t-sm); line-height: 1.65; }
+
+/* ---------- Faixa de confiança nas páginas de tratamento ---------- */
+.seccao__cabecalho--centro {
+  margin-inline: auto;
+  text-align: center;
+}
+
+.grelha-porque {
+  display: grid;
+  gap: 1.8rem;
+}
+.grelha-porque li { text-align: center; }
+.porque__icone {
+  display: grid;
+  place-items: center;
+  width: 3.4rem;
+  height: 3.4rem;
+  margin: 0 auto 1rem;
+  border: 1px solid var(--linha);
+  border-radius: 50%;
+  background: var(--branco);
+  color: var(--bronze-texto);
+}
+.grelha-porque h3 { margin-bottom: .4rem; font-size: 1.08rem; }
+.grelha-porque p {
+  max-width: 24rem;
+  margin-inline: auto;
+  color: var(--tinta-suave);
+  font-size: var(--t-sm);
+  line-height: 1.65;
+}
+
+/* ---------- Introdução das páginas de tratamento ---------- */
+.grelha-intro { display: grid; gap: 1rem; }
+.intro__texto {
+  color: var(--tinta-suave);
+  font-size: var(--t-lead);
+  line-height: 1.7;
+}
+
+/* ---------- Odontopediatria: imagem larga com cartão sobreposto ---------- */
+.criancas { position: relative; }
+
+.criancas__imagem img {
+  width: 100%;
+  height: clamp(17rem, 44vw, 30rem);
+  object-fit: cover;
+  border-radius: var(--raio-g);
+}
+
+.criancas__cartao {
+  position: relative;
+  margin: -4.5rem 1rem 0;
+  padding: 1.8rem 1.6rem;
+  /* branco, não marfim: sobre a fotografia e sobre o fundo da página
+     tem de se ler sempre como um cartão */
+  background: var(--branco);
+  border: 1px solid var(--linha);
+  border-radius: var(--raio-g);
+  box-shadow: var(--sombra-media);
+}
+.criancas__lead {
+  margin-top: .9rem;
+  color: var(--tinta-suave);
+}
+.criancas__cartao .botao { margin-top: 1.5rem; }
+
+/* faixa de quatro argumentos por baixo da composição */
+.criancas__pontos {
+  display: grid;
+  gap: 1.4rem;
+  margin-top: 2.5rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--linha);
+}
+.criancas__pontos strong {
+  display: block;
+  margin-bottom: .2rem;
+  color: var(--marinho);
+  font-size: .96rem;
+}
+.criancas__pontos span {
+  color: var(--tinta-suave);
+  font-size: var(--t-sm);
+  line-height: 1.55;
+}
+
+/* ---------- Perguntas frequentes: lista aberta, sem acordeão ----------
+   Tudo visível: não há setas nem cliques, e a Google lê as respostas todas. */
+.faq {
+  display: grid;
+  gap: 2.4rem 3.5rem;
+}
+.faq__item h3 {
+  margin-bottom: .5rem;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.12rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--marinho);
+}
+.faq__item p {
+  color: var(--tinta-suave);
+  font-size: var(--t-sm);
+  line-height: 1.75;
+}
+
+.faq__faixa {
+  display: grid;
+  gap: 1.2rem;
+  align-items: center;
+  margin-top: 3.2rem;
+  padding: 1.6rem 1.8rem;
+  background: var(--marinho);
+  border-radius: var(--raio-g);
+}
+.faq__faixa strong {
+  display: block;
+  margin-bottom: .2rem;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.22rem;
+  font-weight: 600;
+  color: var(--branco);
+}
+.faq__faixa span {
+  color: rgba(255, 255, 255, .72);
+  font-size: var(--t-sm);
+  line-height: 1.6;
+}
+
+.seccao--escura .faq__item h3 { color: var(--branco); }
+.seccao--escura .faq__item p { color: rgba(255, 255, 255, .72); }
+
+/* ---------- Faixa de chamada à ação ---------- */
+.faixa-cta {
+  display: grid;
+  gap: 1.5rem;
+  padding: clamp(1.8rem, 1rem + 3vw, 3rem);
+  background: var(--branco);
+  border: 1px solid var(--linha);
+  border-radius: var(--raio-g);
+  box-shadow: var(--sombra-suave);
+}
+.faixa-cta h2 { font-size: clamp(1.4rem, 1.2rem + 1vw, 1.9rem); }
+.faixa-cta p { margin-top: .6rem; color: var(--tinta-suave); }
+.faixa-cta__accoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .8rem;
+  align-items: center;
+}
+
+/* ---------- Ações fixas (topo, WhatsApp, telefone) ---------- */
+.accoes-fixas {
   position: fixed;
   right: 1rem;
-  bottom: 1rem;
+  bottom: 5rem;
   z-index: 90;
   display: grid;
   justify-items: end;
   gap: .6rem;
 }
 
-.accao-flutuante__opcoes {
+.accao-redonda {
+  display: grid;
+  place-items: center;
+  width: 3.1rem;
+  height: 3.1rem;
+  border: 0;
+  border-radius: 50%;
+  box-shadow: var(--sombra-media);
+  text-decoration: none;
+  transition: background-color var(--transicao), color var(--transicao), scale var(--transicao);
+}
+.accao-redonda:hover { scale: 1.06; }
+.accao-redonda--topo {
+  background: var(--branco);
+  border: 1px solid var(--linha);
+  color: var(--marinho);
+}
+.accao-redonda--topo:hover { background: var(--osso); }
+.accao-redonda--whatsapp { background: #0F7A3D; color: #fff; }
+.accao-redonda--whatsapp:hover { background: #0C6733; }
+.accao-redonda--telefone { background: var(--marinho); color: var(--marfim); }
+.accao-redonda--telefone:hover { background: var(--marinho-600); }
+.accao-redonda--telefone[aria-expanded='true'] { background: var(--bronze); color: #23160A; }
+
+.accao-telefone { display: grid; justify-items: end; gap: .5rem; }
+.accao-telefone__opcoes {
   display: grid;
   gap: .3rem;
   padding: .45rem;
@@ -1039,7 +1416,7 @@ a.cartao-contacto:hover {
   box-shadow: var(--sombra-media);
   animation: surgir 200ms ease;
 }
-.accao-flutuante__opcoes a {
+.accao-telefone__opcoes a {
   display: flex;
   align-items: center;
   gap: .6rem;
@@ -1051,113 +1428,36 @@ a.cartao-contacto:hover {
   text-decoration: none;
   white-space: nowrap;
 }
-.accao-flutuante__opcoes a:hover { background: var(--osso); }
+.accao-telefone__opcoes a:hover { background: var(--osso); }
 
-.accao-flutuante__botao {
+/* ---------- Barra fixa de contacto (telemóvel) ---------- */
+.barra-accao {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 95;
   display: grid;
-  place-items: center;
-  width: 3.4rem;
-  height: 3.4rem;
-  border: 0;
-  border-radius: 50%;
-  background: var(--marinho);
-  color: var(--marfim);
-  box-shadow: var(--sombra-media);
-  transition: background-color var(--transicao), scale var(--transicao);
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--linha);
+  border-top: 1px solid var(--linha);
+  box-shadow: 0 -8px 24px -16px rgba(10, 49, 77, .5);
 }
-.accao-flutuante__botao:hover {
-  background: var(--marinho-600);
-  scale: 1.05;
-}
-.accao-flutuante__botao[aria-expanded='true'] { background: var(--bronze); color: #23160A; }
-
-/* ---------- 9) Páginas interiores (legais e erro) ---------- */
-.cabecalho--simples .cabecalho__barra { justify-content: space-between; }
-
-.pagina-interior {
-  padding-block: clamp(2.5rem, 1.5rem + 4vw, 4.5rem) var(--espaco-seccao);
-}
-
-.legal {
-  width: min(100% - 2.5rem, 46rem);
-  margin-inline: auto;
-}
-.legal__data {
-  margin-top: 1.2rem;
-  color: var(--tinta-suave);
-  font-size: var(--t-xs);
-}
-.legal h2 {
-  margin-top: 2.8rem;
-  margin-bottom: .8rem;
-  font-size: clamp(1.25rem, 1.1rem + .7vw, 1.6rem);
-}
-.legal p,
-.legal li { color: var(--tinta-suave); }
-.legal p + p { margin-top: 1rem; }
-.legal ul {
-  display: grid;
-  gap: .6rem;
-  margin-top: 1rem;
-  padding-left: 1.3rem;
-  list-style: disc;
-}
-.legal a {
-  color: var(--marinho);
-  font-weight: 600;
-  text-underline-offset: 3px;
-}
-.legal a:hover { color: var(--bronze-texto); }
-
-.legal__destaque {
-  margin-top: 1.6rem;
-  padding: 1.3rem 1.4rem;
-  background: var(--osso);
-  border-left: 3px solid var(--bronze);
-  border-radius: 0 var(--raio) var(--raio) 0;
-}
-.legal__destaque p { color: var(--tinta); }
-
-.legal__voltar {
-  display: inline-flex;
+.barra-accao__item {
+  display: flex;
   align-items: center;
+  justify-content: center;
   gap: .5rem;
-  margin-top: 3rem;
+  min-height: 3.5rem;
+  padding: .6rem;
+  background: var(--marfim);
+  color: var(--marinho);
   font-size: var(--t-sm);
   font-weight: 700;
-  color: var(--marinho);
   text-decoration: none;
 }
-.legal__voltar:hover { color: var(--bronze-texto); }
+.barra-accao__item--whatsapp { background: #0F7A3D; color: #fff; }
 
-.erro {
-  display: grid;
-  place-items: center;
-  gap: 1rem;
-  width: var(--envolvente);
-  margin-inline: auto;
-  padding-block: clamp(4rem, 2rem + 10vw, 8rem);
-  text-align: center;
-}
-.erro__codigo {
-  font-family: 'Fraunces', Georgia, serif;
-  font-size: clamp(4rem, 2rem + 12vw, 8rem);
-  font-weight: 600;
-  line-height: 1;
-  color: var(--bronze);
-}
-.erro p {
-  max-width: 34rem;
-  color: var(--tinta-suave);
-  font-size: var(--t-lead);
-}
-.erro__accoes {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: .8rem;
-  margin-top: 1rem;
-}
+.cartao-contacto--whatsapp .cartao-contacto__icone { background: rgba(15, 122, 61, .12); color: #0C6733; }
 
 /* =========================================================
    Pontos de rutura — a partir daqui acrescenta-se complexidade
@@ -1171,7 +1471,7 @@ a.cartao-contacto:hover {
 }
 
 @media (min-width: 48em) {
-  .grelha-equipa { grid-template-columns: repeat(3, 1fr); gap: 1.1rem; }
+  .grelha-equipa { grid-template-columns: repeat(3, 1fr); gap: 1.3rem; }
   .modal__conteudo { grid-template-columns: 15rem 1fr; }
   .modal__foto img { max-height: none; height: 100%; }
   .modal__texto { padding: 2.4rem 2.2rem; }
@@ -1219,6 +1519,11 @@ a.cartao-contacto:hover {
     transform-origin: left;
     transition: scale var(--transicao);
   }
+  /* nav e ações encostam ambas à direita, para o seletor de idioma
+     não ficar isolado no extremo da barra */
+  .navegacao { margin-left: auto; }
+  .cabecalho__barra { justify-content: flex-start; }
+
   .navegacao__lista a:hover { padding-left: 0; }
   .navegacao__lista a:hover::after,
   .navegacao__lista a[aria-current='true']::after { scale: 1 1; }
@@ -1242,7 +1547,7 @@ a.cartao-contacto:hover {
   .grelha-implante { grid-template-columns: 1fr .95fr; }
   .grelha-contactos { grid-template-columns: .9fr 1.1fr; align-items: stretch; }
   .grelha-especialidades { grid-template-columns: repeat(3, 1fr); }
-  .grelha-equipa { grid-template-columns: repeat(4, 1fr); }
+  .grelha-equipa { grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
 
   .rodape__grelha { grid-template-columns: 1.6fr 1fr 1.2fr 1.2fr; gap: 3rem; }
   .rodape__base { text-align: left; }
@@ -1255,4 +1560,108 @@ a.cartao-contacto:hover {
 /* Ecrãs muito largos: impede que o texto do hero fique demasiado extenso */
 @media (min-width: 100em) {
   :root { --envolvente: min(100% - 4rem, 82rem); }
+}
+
+
+/* ---------- Pontos de rutura dos componentes acrescentados ---------- */
+@media (min-width: 30em) {
+  .grelha-metodos { grid-template-columns: repeat(2, 1fr); }
+  .accoes-fixas { right: 1.5rem; }
+}
+
+@media (min-width: 48em) {
+  .faixa-cta { grid-template-columns: 1.4fr auto; align-items: center; }
+}
+
+@media (min-width: 62em) {
+  /* A barra fixa é só para telemóvel; no computador ficam os botões redondos */
+  .barra-accao { display: none; }
+  .accoes-fixas { bottom: 1.5rem; }
+
+  .grelha-metodos { grid-template-columns: repeat(3, 1fr); }
+  .grelha-criancas { grid-template-columns: 1fr .9fr; }
+  /* a faixa de factos atravessa as duas colunas; sem a declarar aqui, o
+     item cai numa coluna implícita e esmaga o texto do hero */
+  .hero--tratamento {
+    grid-template-areas:
+      'texto media'
+      'provas provas';
+  }
+  .hero--tratamento .hero__texto { grid-area: texto; align-self: center; }
+  .hero--tratamento .hero__media { grid-area: media; }
+  .hero--tratamento .hero__provas { grid-area: provas; }
+
+  .idioma { order: 2; }
+}
+
+/* Em telemóvel a barra fixa tapa o fim da página: compensa-se o espaço */
+@media (max-width: 61.999em) {
+  body { padding-bottom: 3.5rem; }
+  .accoes-fixas { bottom: 4.5rem; }
+  .accao-redonda--telefone,
+  .accao-redonda--whatsapp { display: none; }
+}
+
+
+/* ---------- Pontos de rutura dos desenhos refeitos ---------- */
+@media (min-width: 30em) {
+}
+
+@media (min-width: 48em) {
+  .grelha-intro { grid-template-columns: .8fr 1.2fr; gap: 3rem; }
+  .grelha-porque { grid-template-columns: repeat(3, 1fr); gap: 2.5rem; }
+}
+
+@media (min-width: 62em) {
+
+  /* a introdução do tratamento fica em duas colunas, título à esquerda */
+  .grelha-intro { grid-template-columns: .75fr 1.25fr; gap: 4rem; }
+
+  /* linha do tempo na horizontal, com o fio a atravessar as marcas */
+  .linha-tempo {
+    grid-template-columns: repeat(auto-fit, minmax(10.5rem, 1fr));
+    gap: 1.8rem;
+  }
+  .linha-tempo li { padding: 3.8rem 0 0; }
+  .linha-tempo__marca { top: 0; }
+  .linha-tempo li:not(:last-child)::before {
+    top: 1.3rem;
+    right: -1.8rem;
+    bottom: auto;
+    left: 2.9rem;
+    width: auto;
+    height: 1px;
+  }
+
+}
+
+
+/* ---------- Pontos de rutura: odontopediatria e perguntas ---------- */
+@media (min-width: 40em) {
+  .criancas__pontos { grid-template-columns: repeat(2, 1fr); gap: 1.6rem 2rem; }
+  .faq { grid-template-columns: 1fr 1fr; }
+  .faq__faixa { grid-template-columns: 1fr auto; }
+}
+
+@media (min-width: 62em) {
+  /* O cartão flutua sobre a fotografia. Em vez de posicionamento absoluto,
+     sobrepõem-se os dois na mesma célula de grelha: assim a linha cresce com
+     o mais alto dos dois e o cartão nunca transborda para fora da imagem. */
+  .criancas { display: grid; }
+  .criancas__imagem,
+  .criancas__cartao { grid-area: 1 / 1; }
+  .criancas__imagem img { height: 100%; min-height: 27rem; }
+  .criancas__cartao {
+    align-self: end;
+    justify-self: start;
+    max-width: 29rem;
+    margin: 2.5rem;
+    padding: 2.3rem 2.1rem;
+  }
+  .criancas__pontos {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+    margin-top: 3rem;
+  }
+  .faq { gap: 2.8rem 4.5rem; }
 }

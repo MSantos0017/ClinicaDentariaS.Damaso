@@ -1,0 +1,3 @@
+# Erros dentro de /en/ mostram a página em inglês.
+# O resto da configuração é herdado do .htaccess da raiz.
+ErrorDocument 404 /en/404.html

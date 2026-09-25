@@ -15,6 +15,10 @@ Options -Indexes
 <IfModule mod_rewrite.c>
   RewriteEngine On
 
+  # Pastas de trabalho: não devem sequer ser enviadas para o servidor, mas
+  # se forem por engano ficam inacessíveis
+  RewriteRule ^(_ferramentas|_originais)/ - [F,L]
+
   # Redireciona http:// para https:// (independente do domínio)
   RewriteCond %{HTTPS} !=on
   RewriteCond %{HTTP:X-Forwarded-Proto} !https
